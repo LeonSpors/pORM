@@ -1,4 +1,4 @@
-name: Publish nightly build to GitHub Packages
+name: Publish nightly build
 
 on:
   push:

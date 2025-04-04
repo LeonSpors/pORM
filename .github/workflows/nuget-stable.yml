@@ -1,12 +1,14 @@
-name: Publish stable release to NuGet
+name: Publish stable build
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'src/**/*.csproj'
-      - 'Directory.Packages.props'
+  workflow_dispatch:
+# on:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - 'src/**/*.csproj'
+#       - 'Directory.Packages.props'
 
 jobs:
   publish:
