@@ -1,0 +1,29 @@
+<Project>
+  <PropertyGroup>
+    <!-- Version -->
+    <Version>0.1.0-alpha</Version>
+
+    <!-- Package Identity -->
+    <PackageId>pORM</PackageId>
+    <Authors>Leon Spors</Authors>
+    <Company>Leon Spors</Company>
+
+    <!-- Description and Tags -->
+    <Description>A performance-oriented, lightweight ORM for .NET that delivers fast and minimal data mapping, with built-in support for basic CRUD operations and LINQ-to-SQL translation.</Description>
+    <PackageTags>orm;lightweight;dotnet;crud;linq;performance;micro-orm</PackageTags>
+    
+    <!-- Repository Metadata -->
+    <PackageProjectUrl>https://github.com/LeonSpors/pORM</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/LeonSpors/pORM.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <!-- Licensing -->
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Copyright>Copyright © Leon Spors</Copyright>
+
+    <!-- Build behavior -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSource>true</IncludeSource>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+</Project>

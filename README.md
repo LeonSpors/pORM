@@ -1,4 +1,12 @@
 # pORM
+[![Stable Version](https://img.shields.io/badge/Stable-Disabled-lightgrey?style=flat-square)]()
+[![Nightly Version](https://img.shields.io/badge/Nightly-GitHub%20Packages-blueviolet?style=flat-square)](https://github.com/LeonSpors/pORM/pkgs/nuget/pORM.Core)
+
+[![Stable Workflow](https://github.com/LeonSpors/pORM/actions/workflows/nuget-stable.yml/badge.svg)](https://github.com/LeonSpors/pORM/actions/workflows/nuget-stable.yml)
+[![Nightly Workflow](https://github.com/LeonSpors/pORM/actions/workflows/nuget-nightly.yml/badge.svg)](https://github.com/LeonSpors/pORM/actions/workflows/nuget-nightly.yml)
+
+
+
 
 **pORM** is a performance-oriented, lightweight ORM mapper for .NET. It’s designed for developers who want a minimal and efficient way to map SQL query results to objects and perform CRUD operations without the overhead of a full-featured ORM.
 
