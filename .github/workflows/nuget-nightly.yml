@@ -2,15 +2,23 @@ name: Publish nightly build
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # every day at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   publish-nightly:
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: develop
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4

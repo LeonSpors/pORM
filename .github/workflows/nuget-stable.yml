@@ -10,6 +10,10 @@ on:
 #       - 'src/**/*.csproj'
 #       - 'Directory.Packages.props'
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   publish:
     runs-on: ubuntu-latest
