@@ -4,7 +4,11 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>pORM.Models</RootNamespace>
     </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\pORM.Core\pORM.Core.csproj" />
+      <ProjectReference Include="..\pORM.Extensions\pORM.Extensions.csproj" />
+    </ItemGroup>
 
 </Project>

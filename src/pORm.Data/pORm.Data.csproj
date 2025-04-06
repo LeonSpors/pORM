@@ -6,4 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\pORM.Core\pORM.Core.csproj" />
+      <ProjectReference Include="..\pORM.Mapping\pORM.Mapping.csproj" />
+    </ItemGroup>
+
 </Project>
