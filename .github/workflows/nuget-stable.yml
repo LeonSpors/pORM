@@ -6,8 +6,7 @@ on:
 #   push:
 #     branches:
 #       - main
-#     paths:
-#       - 'src/**/*.csproj'
+#    paths:
 #       - 'Directory.Packages.props'
 
 defaults:
@@ -15,7 +14,7 @@ defaults:
     shell: bash
 
 jobs:
-  publish:
+  publish-stable:
     runs-on: ubuntu-latest
 
     steps:
@@ -36,23 +35,36 @@ jobs:
       - name: Run Tests
         run: dotnet test --configuration Release --no-build
 
-      - name: Extract version from .csproj
+      - name: Generate Nightly Version
         id: version
         run: |
-          VERSION=$(grep '<Version>' src/pORM.Core/pORM.Core.csproj | sed -E 's/.*<Version>(.*)<\/Version>.*/\1/')
-          echo "PACKAGE_VERSION=$VERSION" >> $GITHUB_ENV
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          BASE_VERSION=$(grep '<Version>' Directory.Build.props | sed -E 's/.*<Version>(.*)<\/Version>.*/\1/')
+          NIGHTLY_TAG="nightly.$(date +'%Y%m%d')-$(git rev-parse --short HEAD)"
+          echo "NIGHTLY_VERSION=${BASE_VERSION}-${NIGHTLY_TAG}" >> $GITHUB_ENV
+          echo "version=${BASE_VERSION}-${NIGHTLY_TAG}" >> $GITHUB_OUTPUT
 
-      - name: Check if version already exists on NuGet
-        id: check_nuget
+      - name: Publish pORM.Core
         run: |
-          EXISTS=$(curl -s https://api.nuget.org/v3-flatcontainer/porm.core/${{ steps.version.outputs.version }}/porm.core.${{ steps.version.outputs.version }}.nupkg --head | head -n 1 | grep "200" || true)
-          echo "exists=$EXISTS" >> $GITHUB_OUTPUT
+          dotnet pack src/pORM.Core/pORM.Core.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:UsePackagedReferences=true
+          dotnet nuget push ./nupkg/pORM.Core.*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
 
-      - name: Pack
-        if: steps.check_nuget.outputs.exists == ''
-        run: dotnet pack src/pORM.Core/pORM.Core.csproj --configuration Release --no-build --output ./nupkg
+      - name: Publish pORM.Data
+        run: |
+          dotnet pack src/pORM.Data/pORM.Data.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:UsePackagedReferences=true
+          dotnet nuget push ./nupkg/pORM.Data.*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
 
-      - name: Push to NuGet
-        if: steps.check_nuget.outputs.exists == ''
-        run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+      - name: Publish pORM.Mapping
+        run: |
+          dotnet pack src/pORM.Mapping/pORM.Mapping.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:UsePackagedReferences=true
+          dotnet nuget push ./nupkg/pORM.Mapping.*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+
+      - name: Publish pORM.Extensions
+        run: |
+          dotnet pack src/pORM.Extensions/pORM.Extensions.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:UsePackagedReferences=true
+          dotnet nuget push ./nupkg/pORM.Extensions.*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+
+      - name: Publish pORM.MySql
+        run: |
+          dotnet pack Providers/pORM.Mysql/pORM.Mysql.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:UsePackagedReferences=true
+          dotnet nuget push ./nupkg/pORM.Mysql.*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+
