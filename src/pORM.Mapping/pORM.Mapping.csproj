@@ -4,11 +4,21 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <Version>$(Version)</Version>
+
+        <UsePackagedReferences Condition="'$(UsePackagedReferences)'==''">false</UsePackagedReferences>
     </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\pORM.Core\pORM.Core.csproj" />
-      <ProjectReference Include="..\pORM.Extensions\pORM.Extensions.csproj" />
+    <!-- For local development -->
+    <ItemGroup Condition="'$(UsePackagedReferences)'=='false'">
+        <ProjectReference Include="..\..\src\pORM.Core\pORM.Core.csproj" />
+        <ProjectReference Include="..\..\src\pORM.Extensions\pORM.Extensions.csproj" />
+    </ItemGroup>
+
+    <!-- For packaging/publishing -->
+    <ItemGroup Condition="'$(UsePackagedReferences)'=='true'">
+        <PackageReference Include="pORM.Core" Version="$(Version)" />
+        <PackageReference Include="pORM.Extensions" Version="$(Version)" />
     </ItemGroup>
 
 </Project>

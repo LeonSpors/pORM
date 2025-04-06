@@ -41,15 +41,27 @@ jobs:
           echo "NIGHTLY_VERSION=${BASE_VERSION}-${NIGHTLY_TAG}" >> $GITHUB_ENV
           echo "version=${BASE_VERSION}-${NIGHTLY_TAG}" >> $GITHUB_OUTPUT
 
-      - name: Pack Nightly
+      - name: Publish pORM.Core
         run: |
-          dotnet pack src/pORM.Core/pORM.Core.csproj \
-            --configuration Release \
-            --no-build \
-            --output ./nupkg \
-            /p:Version=${{ env.NIGHTLY_VERSION }}
+          dotnet pack src/pORM.Core/pORM.Core.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:UsePackagedReferences=true
+          dotnet nuget push ./nupkg/pORM.Core.*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push to GitHub Packages
-        run: dotnet nuget push ./nupkg/*.nupkg \
-          --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-          --api-key ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish pORM.Data
+        run: |
+          dotnet pack src/pORM.Data/pORM.Data.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:UsePackagedReferences=true
+          dotnet nuget push ./nupkg/pORM.Data.*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish pORM.Mapping
+        run: |
+          dotnet pack src/pORM.Mapping/pORM.Mapping.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:UsePackagedReferences=true
+          dotnet nuget push ./nupkg/pORM.Mapping.*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish pORM.Extensions
+        run: |
+          dotnet pack src/pORM.Extensions/pORM.Extensions.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:UsePackagedReferences=true
+          dotnet nuget push ./nupkg/pORM.Extensions.*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish pORM.MySql
+        run: |
+          dotnet pack Providers/pORM.Mysql/pORM.Mysql.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:UsePackagedReferences=true
+          dotnet nuget push ./nupkg/pORM.Mysql.*.nupkg --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key ${{ secrets.GITHUB_TOKEN }}

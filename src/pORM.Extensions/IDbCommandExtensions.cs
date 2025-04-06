@@ -5,6 +5,7 @@ using System.Reflection;
 
 namespace pORM.Extensions;
 
+// ReSharper disable once InconsistentNaming
 public static class IDBCommandExtensions
 {
     /// <summary>
