@@ -1,9 +1,9 @@
 # pORM
 [![Stable Version](https://img.shields.io/badge/Stable-Disabled-lightgrey?style=flat-square)]()
-[![Nightly Version](https://img.shields.io/badge/Nightly-GitHub%20Packages-blueviolet?style=flat-square)](https://github.com/LeonSpors/pORM/pkgs/nuget/pORM.Core)
+[![Nightly Version](https://img.shields.io/badge/Nightly-GitHub%20Packages-blueviolet?style=flat-square)](https://github.com/LeonSpors?tab=packages&repo_name=pORM)
 
-[![Stable Workflow](https://github.com/LeonSpors/pORM/actions/workflows/nuget-stable.yml/badge.svg)](https://github.com/LeonSpors/pORM/actions/workflows/nuget-stable.yml)
-[![Nightly Workflow](https://github.com/LeonSpors/pORM/actions/workflows/nuget-nightly.yml/badge.svg)](https://github.com/LeonSpors/pORM/actions/workflows/nuget-nightly.yml)
+[![Stable Workflow](https://github.com/LeonSpors/pORM/actions/workflows/publish-stable.yml/badge.svg)](https://github.com/LeonSpors/pORM/actions/workflows/publish-stable.yml)
+[![Nightly Workflow](https://github.com/LeonSpors/pORM/actions/workflows/publish-nightly.yml/badge.svg)](https://github.com/LeonSpors/pORM/actions/workflows/publish-nightly.yml)
 
 
 
