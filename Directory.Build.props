@@ -1,27 +1,43 @@
 <Project>
+
+  <!-- Shared project metadata -->
   <PropertyGroup>
     <!-- Version -->
     <Version>0.1.0-alpha</Version>
 
-    <!-- Package Metadata -->
+    <!-- Package Identity -->
+    <PackageId Condition="'$(PackageId)' == ''">$(MSBuildProjectName)</PackageId>
     <Authors>Leon Spors</Authors>
     <Company>Leon Spors</Company>
+
+    <!-- Description & Tags -->
     <Description>A performance-oriented, lightweight ORM for .NET that delivers fast and minimal data mapping, with built-in support for basic CRUD operations and LINQ-to-SQL translation.</Description>
     <PackageTags>orm;lightweight;dotnet;crud;linq;performance;micro-orm</PackageTags>
-    
+
     <!-- Repository Metadata -->
     <PackageProjectUrl>https://github.com/LeonSpors/pORM</PackageProjectUrl>
     <RepositoryUrl>https://github.com/LeonSpors/pORM.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EnableSourceLink>true</EnableSourceLink>
 
     <!-- Licensing -->
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Copyright>Copyright © Leon Spors</Copyright>
+  </PropertyGroup>
 
-    <!-- Build behavior -->
-    <IncludeSymbols>true</IncludeSymbols>
-    <IncludeSource>true</IncludeSource>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  <!-- Default build behavior -->
+  <PropertyGroup>
+    <IncludeSymbols>false</IncludeSymbols>
+    <IncludeSource>false</IncludeSource>
+    <EmbedUntrackedSources>false</EmbedUntrackedSources>
     <UsePackagedReferences>false</UsePackagedReferences>
   </PropertyGroup>
+
+  <!-- Nightly build behavior -->
+  <PropertyGroup Condition="'$(Nightly)' == 'true'">
+    <DebugType>embedded</DebugType>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+
 </Project>
