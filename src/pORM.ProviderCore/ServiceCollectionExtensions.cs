@@ -3,7 +3,7 @@ using pORM.Core.Caching;
 using pORM.Core.Interfaces;
 using pORm.Data;
 
-namespace pORM.Extensions;
+namespace pORM.ProviderCore;
 
 public static class ServiceCollectionExtensions
 {

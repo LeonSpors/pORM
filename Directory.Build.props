@@ -3,12 +3,9 @@
     <!-- Version -->
     <Version>0.1.0-alpha</Version>
 
-    <!-- Package Identity -->
-    <PackageId>pORM</PackageId>
+    <!-- Package Metadata -->
     <Authors>Leon Spors</Authors>
     <Company>Leon Spors</Company>
-
-    <!-- Description and Tags -->
     <Description>A performance-oriented, lightweight ORM for .NET that delivers fast and minimal data mapping, with built-in support for basic CRUD operations and LINQ-to-SQL translation.</Description>
     <PackageTags>orm;lightweight;dotnet;crud;linq;performance;micro-orm</PackageTags>
     
@@ -25,5 +22,6 @@
     <IncludeSymbols>true</IncludeSymbols>
     <IncludeSource>true</IncludeSource>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <UsePackagedReferences>false</UsePackagedReferences>
   </PropertyGroup>
 </Project>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using pORM.Core.Interfaces;
 using pORM.Extensions;
+using pORM.ProviderCore;
 
 namespace pORM.Mysql;
 
