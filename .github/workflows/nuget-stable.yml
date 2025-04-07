@@ -73,7 +73,7 @@ jobs:
 
       - name: Publish pORM.MySql
         run: |
-          dotnet pack Providers/pORM.Mysql/pORM.Mysql.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }}
+          dotnet pack src/pORM.Mysql/pORM.Mysql.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }}
           dotnet nuget push ./nupkg/pORM.Mysql.*.nupkg \
             --api-key ${{ secrets.NUGET_API_KEY }} \
             --source https://api.nuget.org/v3/index.json
