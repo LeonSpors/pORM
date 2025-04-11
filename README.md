@@ -104,6 +104,40 @@ public async Task QueryUsersByEmailDomain(IGlobalContext globalContext)
 
 If you need more advanced querying capabilities, please refer to the documentation in the [/docs](/docs) folder.
 
+## Nightly Packages
+
+If you'd like to try out the very latest features and bug fixes before they make it into a stable release, nightly packages for pORM are available on GitHub Packages. These builds are updated on a nightly basis and include the bleeding-edge changes from the **develop** branch.
+
+#### How to Use the Nightly Packages
+
+1. **Authentication**  
+   
+   Make sure you are logged into GitHub. Your NuGet client may need to be configured to authenticate with GitHub Packages using your GitHub credentials or a Personal Access Token.
+
+2. **Add the GitHub Packages Source**  
+   
+   Add the following package source to your `NuGet.config` file.
+   ```xml
+   <configuration>
+     <packageSources>
+       <add key="pORM Nightly" value="https://nuget.pkg.github.com/LeonSpors/index.json" />
+     </packageSources>
+   </configuration>
+    ```
+
+3. **Install the Nightly Package**
+   
+   Once you have added the package source, you can install the nightly version using the NuGet Package Manager or the Package Manager Console:
+   ```powershell
+    Install-Package pORM -Version <nightly-version>
+   ```
+
+   Replace <nightly-version> with the appropriate nightly version number. You can also search for pre-release versions in your package manager if you enable the "Include prerelease" option.
+
+### Disclaimer
+
+Nightly packages are pre-release builds and may contain experimental or unstable features. They are intended for testing and early feedback purposes and should be used with caution in production environments.
+
 ## Support
 
 If you enjoy using pORM and want to support its development, please consider buying me a coffee!
