@@ -85,7 +85,7 @@ namespace pORM.Tests
         [Test]
         public void GetKeyItem_WithEntityHavingKey_ReturnsKeyMapping()
         {
-            TableCacheItem keyMapping = _tableCache.GetKeyItem<TestEntityWithKey>();
+            TableCacheItem keyMapping = _tableCache.GetKeyItem<TestEntity>();
 
             Assert.That(keyMapping, Is.Not.Null);
             Assert.That(keyMapping.Metadata.Name, Is.EqualTo("Id"));
