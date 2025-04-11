@@ -10,6 +10,10 @@
 
 **pORM** is a performance-oriented, lightweight ORM mapper for .NET. It’s designed for developers who want a minimal and efficient way to map SQL query results to objects and perform CRUD operations without the overhead of a full-featured ORM.
 
+## Important Notes
+- ⚠️ **pORM is currently under heavy development**, and breaking changes may be introduced in future releases.
+- ⚠️ **The context-based mode is coming soon.** For now, please refer to the examples below, which focus on using the GlobalContext class.
+
 ## Features
 
 - **Lightweight & Minimal:** Focused on performance and simplicity.
@@ -32,12 +36,7 @@ Or with the .NET CLI:
 dotnet add package pORM
 ```
 
-*Note: pORM is currently under heavy development, and breaking changes may be introduced in future releases.
-
 ## Usage
-
-> **Disclaimer:**  
-> The context-based mode is coming soon. For now, please refer to the examples below, which focus on using the global context and CRUD operations.
 
 ### Defining Your Entities
 To work with pORM, start by defining your entity classes. Each entity must be decorated with a [Table] attribute so that pORM can map it to the correct database table. Use the [Key] attribute to mark the primary key property. For example:
