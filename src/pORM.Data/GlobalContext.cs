@@ -3,12 +3,12 @@ using pORM.Mapping;
 
 namespace pORm.Data;
 
-public class ContextManager : IContextManager
+public class GlobalContext : IGlobalContext
 {
     private readonly IDatabaseConnectionFactory _connectionFactory;
     private readonly ITableCache _tableCache;
 
-    public ContextManager(IDatabaseConnectionFactory connectionFactory, ITableCache tableCache)
+    public GlobalContext(IDatabaseConnectionFactory connectionFactory, ITableCache tableCache)
     {
         _connectionFactory = connectionFactory;
         _tableCache = tableCache;

@@ -15,7 +15,7 @@ public class MySqlConnectionFactory : IDatabaseConnectionFactory
         
     public async Task<IDbConnection> CreateConnectionAsync()
     {
-        var connection = new MySqlConnection(_connectionString);
+        MySqlConnection connection = new(_connectionString);
         await connection.OpenAsync();
         return connection;
     }

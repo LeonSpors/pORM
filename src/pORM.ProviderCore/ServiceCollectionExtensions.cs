@@ -14,7 +14,7 @@ public static class ServiceCollectionExtensions
     /// <returns>The updated IServiceCollection.</returns>
     public static IServiceCollection AddDatabaseCore(this IServiceCollection services)
     {
-        services.AddSingleton<IContextManager, ContextManager>();
+        services.AddSingleton<IGlobalContext, GlobalContext>();
         services.AddSingleton<ITableCache, TableCache>();
 
         return services;
