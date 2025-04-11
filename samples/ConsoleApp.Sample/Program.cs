@@ -11,9 +11,26 @@ public class Program
     {
         HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
-        // Under the hood it uses MysqlConnector. Use their docs configure the connection properly.
-        // See https://mysqlconnector.net/connection-options/
-        string connectionString = "Server=YOURSERVER;User ID=YOURUSERID;Password=YOURPASSWORD";
+        /*
+         SQL Query to create the Logs table (run manually if needed):
+
+         CREATE TABLE IF NOT EXISTS Logs (
+             Id CHAR(36) NOT NULL,
+             Timestamp DATETIME NOT NULL,
+             Message TEXT NOT NULL,
+             PRIMARY KEY (Id)
+         );
+        */
+        
+        // Under the hood it uses MysqlConnector.
+        // See https://mysqlconnector.net/connection-options/ for all available configuration options.
+        const string host = "localhost";
+        const string port = "3306";
+        const string database = "YOUR_DATABASE";
+        const string username = "YOUR_USERNAME";
+        const string password = "YOUR_PASSWORD";
+        
+        string connectionString = $"Server={host};Port={port};Database={database};User id={username};Password={password}";
         
         builder.Services.AddDatabase(connectionString);
         builder.Services.AddHostedService<ExampleService>();
