@@ -9,15 +9,13 @@
     <!-- For local development -->
     <ItemGroup Condition="'$(UsePackagedReferences)'=='false'">
         <ProjectReference Include="..\..\src\pORM.Core\pORM.Core.csproj" />
+        <ProjectReference Include="..\..\src\pORM.Mapping\pORM.Mapping.csproj" />
     </ItemGroup>
 
     <!-- For packaging/publishing -->
     <ItemGroup Condition="'$(UsePackagedReferences)'=='true'">
         <PackageReference Include="pORM.Core" Version="$(Version)" />
+        <PackageReference Include="pORM.Mapping" Version="$(Version)" />
     </ItemGroup>
     
-    <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.3"/>
-    </ItemGroup>
-
 </Project>

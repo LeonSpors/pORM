@@ -1,0 +1,24 @@
+name: Cleanup old nightly packages
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  delete-old-nightlies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete nightly packages older than the latest 7 versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: |
+            pORM.Core
+            pORM.Data
+            pORM.Mapping
+            pORM.Extensions
+            pORM.MySql
+          package-type: nuget
+          min-versions-to-keep: 7
+          version-regex: '-nightly\.\d{8}-[a-f0-9]+$'
+          token: ${{ secrets.GH_API_KEY }}

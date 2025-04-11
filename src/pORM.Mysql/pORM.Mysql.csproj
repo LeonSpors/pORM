@@ -9,15 +9,19 @@
     <!-- For local development -->
     <ItemGroup Condition="'$(UsePackagedReferences)'=='false'">
         <ProjectReference Include="..\..\src\pORM.Core\pORM.Core.csproj" />
+        <ProjectReference Include="..\..\src\pORM.Extensions\pORM.Extensions.csproj" />
     </ItemGroup>
 
     <!-- For packaging/publishing -->
     <ItemGroup Condition="'$(UsePackagedReferences)'=='true'">
         <PackageReference Include="pORM.Core" Version="$(Version)" />
+        <PackageReference Include="pORM.Extensions" Version="$(Version)" />
     </ItemGroup>
     
     <ItemGroup>
+        <ProjectReference Include="..\pORM.ProviderCore\pORM.ProviderCore.csproj" PrivateAssets="all" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.3"/>
+        <PackageReference Include="MySqlConnector" Version="2.4.0" />
     </ItemGroup>
 
 </Project>
