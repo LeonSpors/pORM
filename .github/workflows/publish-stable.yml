@@ -38,43 +38,44 @@ jobs:
       - name: Generate Nightly Version
         id: version
         run: |
-          BASE_VERSION=$(grep '<Version>' Directory.Build.props | sed -E 's/.*<Version>(.*)<\/Version>.*/\1/')
-          NIGHTLY_TAG="nightly.$(date +'%Y%m%d')-$(git rev-parse --short HEAD)"
-          echo "NIGHTLY_VERSION=${BASE_VERSION}-${NIGHTLY_TAG}" >> $GITHUB_ENV
-          echo "version=${BASE_VERSION}-${NIGHTLY_TAG}" >> $GITHUB_OUTPUT
+          VERSION=$(grep '<Version>' Directory.Build.props | sed -E 's/.*<Version>(.*)<\/Version>.*/\1/')
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Publish pORM.Core
         run: |
-          dotnet pack src/pORM.Core/pORM.Core.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }}
+          dotnet pack src/pORM.Core/pORM.Core.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.VERSION }}
           dotnet nuget push ./nupkg/pORM.Core.*.nupkg \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json
+            --source https://api.nuget.org/v3/index.json \
+            --api-key ${{ secrets.NUGET_API_KEY }}
+
 
       - name: Publish pORM.Data
         run: |
-          dotnet pack src/pORM.Data/pORM.Data.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }}
+          dotnet pack src/pORM.Data/pORM.Data.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.VERSION }}
           dotnet nuget push ./nupkg/pORM.Data.*.nupkg \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json
+            --source https://api.nuget.org/v3/index.json \
+            --api-key ${{ secrets.NUGET_API_KEY }}
 
       - name: Publish pORM.Mapping
         run: |
-          dotnet pack src/pORM.Mapping/pORM.Mapping.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }}
+          dotnet pack src/pORM.Mapping/pORM.Mapping.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.VERSION }}
           dotnet nuget push ./nupkg/pORM.Mapping.*.nupkg \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json
+            --source https://api.nuget.org/v3/index.json \
+            --api-key ${{ secrets.NUGET_API_KEY }}
 
       - name: Publish pORM.Extensions
         run: |
-          dotnet pack src/pORM.Extensions/pORM.Extensions.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }}
+          dotnet pack src/pORM.Extensions/pORM.Extensions.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.VERSION }}
           dotnet nuget push ./nupkg/pORM.Extensions.*.nupkg \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json
+            --source https://api.nuget.org/v3/index.json \
+            --api-key ${{ secrets.NUGET_API_KEY }}
 
       - name: Publish pORM.MySql
         run: |
-          dotnet pack src/pORM.Mysql/pORM.Mysql.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }}
+          dotnet pack src/pORM.Mysql/pORM.Mysql.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.VERSION }}
           dotnet nuget push ./nupkg/pORM.Mysql.*.nupkg \
-            --api-key ${{ secrets.NUGET_API_KEY }} \
-            --source https://api.nuget.org/v3/index.json
+            --source https://api.nuget.org/v3/index.json \
+            --api-key ${{ secrets.NUGET_API_KEY }}
+
 
