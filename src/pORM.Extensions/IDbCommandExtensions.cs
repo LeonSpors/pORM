@@ -11,13 +11,14 @@ public static class IDBCommandExtensions
     /// <summary>
     /// Executes a SQL command and returns the number of affected rows.
     /// </summary>
-    public static async Task<int> ExecuteAsync(this IDbConnection connection, string sql, object? param = null, CancellationToken cancellationToken = default)
+    public static async Task<int> ExecuteAsync(this IDbConnection connection, string sql, object? param = null, CancellationToken cancellationToken = default, IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentException.ThrowIfNullOrWhiteSpace(sql);
         await EnsureOpenAsync(connection, cancellationToken);
         using IDbCommand command = connection.CreateCommand();
         command.CommandText = sql;
+        command.Transaction = transaction;
         AddParametersToCommand(command, param);
         if (command is DbCommand dbCommand)
             return await dbCommand.ExecuteNonQueryAsync(cancellationToken);
@@ -29,13 +30,14 @@ public static class IDBCommandExtensions
     /// Executes a SQL query and maps the result to an enumerable of T.
     /// </summary>
     public static async Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, string sql,
-        object? param = null, CancellationToken cancellationToken = default) where T : new()
+        object? param = null, CancellationToken cancellationToken = default, IDbTransaction? transaction = null) where T : new()
     {
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentException.ThrowIfNullOrWhiteSpace(sql);
         await EnsureOpenAsync(connection, cancellationToken);
         using IDbCommand command = connection.CreateCommand();
         command.CommandText = sql;
+        command.Transaction = transaction;
         AddParametersToCommand(command, param);
         List<T> list = new List<T>();
         if (command is DbCommand dbCommand)
@@ -61,13 +63,14 @@ public static class IDBCommandExtensions
     /// <summary>
     /// Executes a SQL scalar query asynchronously and returns a value of type T.
     /// </summary>
-    public static async Task<T> ExecuteScalarAsync<T>(this IDbConnection connection, string sql, object? param = null, CancellationToken cancellationToken = default)
+    public static async Task<T> ExecuteScalarAsync<T>(this IDbConnection connection, string sql, object? param = null, CancellationToken cancellationToken = default, IDbTransaction? transaction = null)
     {
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentException.ThrowIfNullOrWhiteSpace(sql);
         await EnsureOpenAsync(connection, cancellationToken);
         using IDbCommand command = connection.CreateCommand();
         command.CommandText = sql;
+        command.Transaction = transaction;
         AddParametersToCommand(command, param);
         object? result = null;
         if (command is DbCommand dbCommand)
