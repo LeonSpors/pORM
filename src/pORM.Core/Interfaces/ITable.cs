@@ -6,6 +6,7 @@ public interface ITable<T>
     where T : class, new()
 {
     IQuery<T> Query();
+    ITable<T> WithTransaction(IDatabaseTransaction transaction);
     public Task<bool> AddAsync(T item, CancellationToken cancellationToken = default);
     public Task<bool> UpdateAsync(T item, CancellationToken cancellationToken = default);
     public Task<bool> RemoveAsync(T item, CancellationToken cancellationToken = default);

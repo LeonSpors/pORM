@@ -19,4 +19,7 @@ public class GlobalContext : IGlobalContext
     {
         return new Table<T>(_connectionFactory, _tableCache);
     }
+
+    public Task<IDatabaseTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        => _connectionFactory.BeginTransactionAsync(cancellationToken);
 }
