@@ -2,7 +2,7 @@
 using NSubstitute;
 using NUnit.Framework;
 using pORM.Core.Interfaces;
-using pORm.Data;
+using pORM.Data;
 using pORM.Mapping;
 using pORM.Tests.Models;
 

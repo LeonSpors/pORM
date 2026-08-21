@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using pORM.Core.Caching;
 using pORM.Core.Interfaces;
-using pORm.Data;
+using pORM.Data;
 
 namespace pORM.ProviderCore;
 
