@@ -24,6 +24,7 @@ public class ExpressionToSqlTranslator : ExpressionVisitor
 
     public string Translate(Expression expression)
     {
+        ArgumentNullException.ThrowIfNull(expression);
         try
         {
             Console.WriteLine("[DEBUG] Starting translation...");
