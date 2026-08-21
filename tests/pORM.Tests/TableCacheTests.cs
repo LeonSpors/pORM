@@ -16,7 +16,7 @@ namespace pORM.Tests
     [TestFixture]
     public class TableCacheTests
     {
-        private TableCache _tableCache;
+        private TableCache _tableCache = null!;
 
         [SetUp]
         public void Setup()
@@ -76,7 +76,7 @@ namespace pORM.Tests
         [Test]
         public void GetItem_NullProperty_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => _tableCache.GetItem(null));
+            Assert.Throws<ArgumentNullException>(() => _tableCache.GetItem(null!));
         }
 
         // ----------------------

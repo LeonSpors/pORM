@@ -27,7 +27,10 @@ public class TableCache : ITableCache
             throw new ArgumentNullException(nameof(propertyInfo));
 
         // Use the declaring type of the property as the cache key.
-        var items = _propertyMappingCache.GetOrAdd(propertyInfo.DeclaringType, t =>
+        Type declaringType = propertyInfo.DeclaringType
+            ?? throw new InvalidOperationException($"Property '{propertyInfo.Name}' has no declaring type.");
+
+        var items = _propertyMappingCache.GetOrAdd(declaringType, t =>
             t.GetProperties()
                 .Where(p => p.GetCustomAttribute<NotMappedAttribute>() == null)
                 .Select(p => new TableCacheItem(p))
