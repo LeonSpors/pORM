@@ -1,7 +1,7 @@
 ﻿using pORM.Core.Interfaces;
 using pORM.Mapping;
 
-namespace pORm.Data;
+namespace pORM.Data;
 
 public class GlobalContext : IGlobalContext
 {
