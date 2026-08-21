@@ -11,4 +11,6 @@ public interface ITable<T>
     public Task<bool> ExistsAsync(T item);
     public Task<IEnumerable<T>> WhereAsync(Expression<Func<T, bool>> predicate);
     public Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
+    public Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null);
+    public Task<bool> AnyAsync(Expression<Func<T, bool>>? predicate = null);
 }

@@ -28,6 +28,14 @@ public class DynamicParameters
         throw new KeyNotFoundException($"Parameter '{name}' not found.");
     }
 
+    public object? GetValue(string name)
+    {
+        if (_parameters.TryGetValue(name, out object? value))
+            return value;
+
+        throw new KeyNotFoundException($"Parameter '{name}' not found.");
+    }
+
     /// <summary>
     /// Returns the underlying dictionary.
     /// </summary>
