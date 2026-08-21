@@ -3,8 +3,9 @@
 namespace pORM.Core.Interfaces;
 
 public interface ITable<T>
-    where T : class
+    where T : class, new()
 {
+    IQuery<T> Query();
     public Task<bool> AddAsync(T item);
     public Task<bool> UpdateAsync(T item);
     public Task<bool> RemoveAsync(T item);

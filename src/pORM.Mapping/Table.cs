@@ -134,6 +134,8 @@ namespace pORM.Mapping
             return await CountAsync(predicate) > 0;
         }
 
+        public IQuery<T> Query() => new Query<T>(_connectionFactory, _cache, _tableName);
+
         private string BuildWhereClause(Expression<Func<T, bool>>? predicate, DynamicParameters parameters)
         {
             if (predicate is null)
