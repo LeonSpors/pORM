@@ -5,6 +5,7 @@ using System.Reflection;
 using pORM.Core.Interfaces;
 using pORM.Core.Models;
 using pORM.Extensions;
+using pORM.Mapping.Models;
 using pORM.Mapping.Utilities;
 
 namespace pORM.Mapping
@@ -117,6 +118,33 @@ namespace pORM.Mapping
 
             IEnumerable<T> result = await connection.QueryAsync<T>(sql, translator.Parameters.GetParameters());
             return result.ElementAtOrDefault(0);
+        }
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null)
+        {
+            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
+            DynamicParameters parameters = new();
+            string whereClause = BuildWhereClause(predicate, parameters);
+            string sql = $"SELECT COUNT(1) FROM {_tableName}{whereClause}";
+            return await connection.ExecuteScalarAsync<int>(sql, parameters.GetParameters());
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>>? predicate = null)
+        {
+            return await CountAsync(predicate) > 0;
+        }
+
+        private string BuildWhereClause(Expression<Func<T, bool>>? predicate, DynamicParameters parameters)
+        {
+            if (predicate is null)
+                return string.Empty;
+
+            ExpressionToSqlTranslator translator = new(_cache);
+            string whereClause = translator.Translate(predicate.Body);
+            foreach (string name in translator.Parameters.ParameterNames)
+                parameters.Add(name, translator.Parameters.GetValue(name));
+
+            return $" WHERE {whereClause}";
         }
     }
 }
