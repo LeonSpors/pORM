@@ -4,5 +4,5 @@ namespace pORM.Core.Interfaces;
 
 public interface IDatabaseConnectionFactory
 {
-    public Task<IDbConnection> CreateConnectionAsync();
+    public Task<IDbConnection> CreateConnectionAsync(CancellationToken cancellationToken = default);
 }
