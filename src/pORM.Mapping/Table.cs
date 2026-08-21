@@ -120,6 +120,12 @@ namespace pORM.Mapping
             return result.ElementAtOrDefault(0);
         }
 
+        public async Task<T> FirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            T? result = await FirstOrDefaultAsync(predicate, cancellationToken);
+            return result ?? throw new InvalidOperationException($"No entity of type {typeof(T).Name} matched the predicate.");
+        }
+
         public async Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default)
         {
             using IDbConnection connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
@@ -132,6 +138,26 @@ namespace pORM.Mapping
         public async Task<bool> AnyAsync(Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default)
         {
             return await CountAsync(predicate, cancellationToken) > 0;
+        }
+
+        public async Task<bool> ExistsByIdAsync<TKey>(TKey id, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(id);
+            TableCacheItem keyMapping = _cache.GetKeyItem<T>();
+            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+            string sql = $"SELECT COUNT(1) FROM {_tableName} WHERE {keyMapping.ColumnName} = @{keyMapping.Metadata.Name}";
+            Dictionary<string, object?> parameters = new() { ["@" + keyMapping.Metadata.Name] = id };
+            return await connection.ExecuteScalarAsync<int>(sql, parameters, cancellationToken) > 0;
+        }
+
+        public async Task<bool> RemoveByIdAsync<TKey>(TKey id, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(id);
+            TableCacheItem keyMapping = _cache.GetKeyItem<T>();
+            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+            string sql = $"DELETE FROM {_tableName} WHERE {keyMapping.ColumnName} = @{keyMapping.Metadata.Name}";
+            Dictionary<string, object?> parameters = new() { ["@" + keyMapping.Metadata.Name] = id };
+            return await connection.ExecuteAsync(sql, parameters, cancellationToken) > 0;
         }
 
         public IQuery<T> Query() => new Query<T>(_connectionFactory, _cache, _tableName);
