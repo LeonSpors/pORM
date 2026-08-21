@@ -13,6 +13,8 @@ public static class IDBCommandExtensions
     /// </summary>
     public static async Task<int> ExecuteAsync(this IDbConnection connection, string sql, object? param = null)
     {
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sql);
         await EnsureOpenAsync(connection);
         using IDbCommand command = connection.CreateCommand();
         command.CommandText = sql;
@@ -29,6 +31,8 @@ public static class IDBCommandExtensions
     public static async Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, string sql,
         object? param = null) where T : new()
     {
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sql);
         await EnsureOpenAsync(connection);
         using IDbCommand command = connection.CreateCommand();
         command.CommandText = sql;
@@ -59,6 +63,8 @@ public static class IDBCommandExtensions
     /// </summary>
     public static async Task<T> ExecuteScalarAsync<T>(this IDbConnection connection, string sql, object? param = null)
     {
+        ArgumentNullException.ThrowIfNull(connection);
+        ArgumentException.ThrowIfNullOrWhiteSpace(sql);
         await EnsureOpenAsync(connection);
         using IDbCommand command = connection.CreateCommand();
         command.CommandText = sql;
@@ -171,8 +177,7 @@ public static class IDBCommandExtensions
                     }
                     else
                     {
-                        // For other types, use Convert.ChangeType.
-                        property.SetValue(entity, Convert.ChangeType(value, property.PropertyType));
+                        property.SetValue(entity, ConvertValue(value, property.PropertyType));
                     }
                 }
                 catch (Exception ex)
@@ -184,6 +189,24 @@ public static class IDBCommandExtensions
         }
 
         return entity;
+    }
+
+    private static object ConvertValue(object value, Type targetType)
+    {
+        Type underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+        if (underlyingType == typeof(Guid))
+            return value is Guid guid ? guid : Guid.Parse(value.ToString()!);
+
+        if (underlyingType.IsEnum)
+            return value is string text
+                ? Enum.Parse(underlyingType, text, ignoreCase: true)
+                : Enum.ToObject(underlyingType, value);
+
+        if (underlyingType == typeof(string))
+            return Convert.ToString(value) ?? string.Empty;
+
+        return Convert.ChangeType(value, underlyingType);
     }
 
     #endregion
