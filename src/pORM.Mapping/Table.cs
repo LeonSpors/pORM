@@ -18,8 +18,8 @@ namespace pORM.Mapping
 
         public Table(IDatabaseConnectionFactory connectionFactory, ITableCache cache)
         {
-            _connectionFactory = connectionFactory;
-            _cache = cache;
+            _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             
             TableAttribute? tableAttribute = typeof(T).GetCustomAttribute<TableAttribute>();
             if (tableAttribute is null)
@@ -30,6 +30,7 @@ namespace pORM.Mapping
 
         public async Task<bool> AddAsync(T item)
         {
+            ArgumentNullException.ThrowIfNull(item);
             using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
             
             IReadOnlyList<TableCacheItem> mappings = _cache.GetItems<T>();
@@ -45,10 +46,13 @@ namespace pORM.Mapping
 
         public async Task<bool> UpdateAsync(T item)
         {
+            ArgumentNullException.ThrowIfNull(item);
             using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
 
             TableCacheItem keyMapping = _cache.GetKeyItem<T>();
             List<TableCacheItem> mappings = _cache.GetItems<T>().Where(m => !m.IsKey).ToList();
+            if (mappings.Count == 0)
+                throw new InvalidOperationException($"No non-key properties defined for type {typeof(T).Name}");
 
             string setClause = string.Join(", ", mappings.Select(m => $"{m.ColumnName} = @{m.Metadata.Name}"));
             string sql = $"UPDATE {_tableName} SET {setClause} WHERE {keyMapping.ColumnName} = @{keyMapping.Metadata.Name}";
@@ -59,6 +63,7 @@ namespace pORM.Mapping
 
         public async Task<bool> RemoveAsync(T item)
         {
+            ArgumentNullException.ThrowIfNull(item);
             using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
             
             TableCacheItem keyMapping = _cache.GetKeyItem<T>();
@@ -74,6 +79,7 @@ namespace pORM.Mapping
 
         public async Task<bool> ExistsAsync(T item)
         {
+            ArgumentNullException.ThrowIfNull(item);
             using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
 
             TableCacheItem keyMapping = _cache.GetKeyItem<T>();
@@ -88,6 +94,7 @@ namespace pORM.Mapping
         
         public async Task<IEnumerable<T>> WhereAsync(Expression<Func<T, bool>> predicate)
         {
+            ArgumentNullException.ThrowIfNull(predicate);
             using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
 
             // Use our custom translator that now uses our SimpleDynamicParameters container.
@@ -101,6 +108,7 @@ namespace pORM.Mapping
         
         public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
         {
+            ArgumentNullException.ThrowIfNull(predicate);
             using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
 
             ExpressionToSqlTranslator translator = new(_cache);
