@@ -21,4 +21,19 @@ public class MySqlConnectionFactory : IDatabaseConnectionFactory
         await connection.OpenAsync(cancellationToken);
         return connection;
     }
+
+    public async Task<IDatabaseTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        MySqlConnection connection = (MySqlConnection)await CreateConnectionAsync(cancellationToken);
+        try
+        {
+            MySqlTransaction transaction = await connection.BeginTransactionAsync(cancellationToken);
+            return new MySqlDatabaseTransaction(connection, transaction);
+        }
+        catch
+        {
+            await connection.DisposeAsync();
+            throw;
+        }
+    }
 }
