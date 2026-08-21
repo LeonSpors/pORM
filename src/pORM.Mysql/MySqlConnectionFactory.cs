@@ -10,7 +10,9 @@ public class MySqlConnectionFactory : IDatabaseConnectionFactory
         
     public MySqlConnectionFactory(string connectionString)
     {
-        _connectionString = connectionString;
+        _connectionString = string.IsNullOrWhiteSpace(connectionString)
+            ? throw new ArgumentException("A connection string is required.", nameof(connectionString))
+            : connectionString;
     }
         
     public async Task<IDbConnection> CreateConnectionAsync()
