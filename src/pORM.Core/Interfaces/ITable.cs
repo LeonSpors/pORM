@@ -12,6 +12,9 @@ public interface ITable<T>
     public Task<bool> ExistsAsync(T item, CancellationToken cancellationToken = default);
     public Task<IEnumerable<T>> WhereAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
     public Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
+    public Task<T> FirstAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
     public Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default);
     public Task<bool> AnyAsync(Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default);
+    public Task<bool> ExistsByIdAsync<TKey>(TKey id, CancellationToken cancellationToken = default);
+    public Task<bool> RemoveByIdAsync<TKey>(TKey id, CancellationToken cancellationToken = default);
 }
