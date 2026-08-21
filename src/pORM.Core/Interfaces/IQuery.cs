@@ -12,8 +12,8 @@ public interface IQuery<T>
     IQuery<T> ThenByDescending<TKey>(Expression<Func<T, TKey>> keySelector);
     IQuery<T> Skip(int count);
     IQuery<T> Take(int count);
-    Task<IEnumerable<T>> ToListAsync();
-    Task<T?> FirstOrDefaultAsync();
-    Task<int> CountAsync();
-    Task<bool> AnyAsync();
+    Task<IEnumerable<T>> ToListAsync(CancellationToken cancellationToken = default);
+    Task<T?> FirstOrDefaultAsync(CancellationToken cancellationToken = default);
+    Task<int> CountAsync(CancellationToken cancellationToken = default);
+    Task<bool> AnyAsync(CancellationToken cancellationToken = default);
 }

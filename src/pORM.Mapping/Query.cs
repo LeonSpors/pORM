@@ -64,27 +64,27 @@ public sealed class Query<T> : IQuery<T>
         return this;
     }
 
-    public async Task<IEnumerable<T>> ToListAsync()
+    public async Task<IEnumerable<T>> ToListAsync(CancellationToken cancellationToken = default)
     {
-        using System.Data.IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
+        using System.Data.IDbConnection connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         QueryParts parts = BuildQuery();
-        return await connection.QueryAsync<T>(parts.Sql, parts.Parameters);
+        return await connection.QueryAsync<T>(parts.Sql, parts.Parameters, cancellationToken);
     }
 
-    public async Task<T?> FirstOrDefaultAsync()
+    public async Task<T?> FirstOrDefaultAsync(CancellationToken cancellationToken = default)
     {
         Take(1);
-        return (await ToListAsync()).FirstOrDefault();
+        return (await ToListAsync(cancellationToken)).FirstOrDefault();
     }
 
-    public async Task<int> CountAsync()
+    public async Task<int> CountAsync(CancellationToken cancellationToken = default)
     {
-        using System.Data.IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
+        using System.Data.IDbConnection connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
         QueryParts parts = BuildQuery(countOnly: true);
-        return await connection.ExecuteScalarAsync<int>(parts.Sql, parts.Parameters);
+        return await connection.ExecuteScalarAsync<int>(parts.Sql, parts.Parameters, cancellationToken);
     }
 
-    public async Task<bool> AnyAsync() => await CountAsync() > 0;
+    public async Task<bool> AnyAsync(CancellationToken cancellationToken = default) => await CountAsync(cancellationToken) > 0;
 
     private IQuery<T> SetOrder<TKey>(Expression<Func<T, TKey>> keySelector, bool descending)
     {
