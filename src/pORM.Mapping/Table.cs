@@ -29,10 +29,10 @@ namespace pORM.Mapping
             _tableName = tableAttribute.Name;
         }
 
-        public async Task<bool> AddAsync(T item)
+        public async Task<bool> AddAsync(T item, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(item);
-            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
+            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
             
             IReadOnlyList<TableCacheItem> mappings = _cache.GetItems<T>();
             IEnumerable<string> columnNames = mappings.Select(m => m.ColumnName);
@@ -41,14 +41,14 @@ namespace pORM.Mapping
             string sql = $"INSERT INTO {_tableName} ({string.Join(", ", columnNames)}) VALUES ({string.Join(", ", parameterNames)})";
 
             // Our extension method from SimpleOrmExtensions handles an anonymous object as parameters.
-            int rowsAffected = await connection.ExecuteAsync(sql, item);
+            int rowsAffected = await connection.ExecuteAsync(sql, item, cancellationToken);
             return rowsAffected > 0;
         }
 
-        public async Task<bool> UpdateAsync(T item)
+        public async Task<bool> UpdateAsync(T item, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(item);
-            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
+            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
 
             TableCacheItem keyMapping = _cache.GetKeyItem<T>();
             List<TableCacheItem> mappings = _cache.GetItems<T>().Where(m => !m.IsKey).ToList();
@@ -58,14 +58,14 @@ namespace pORM.Mapping
             string setClause = string.Join(", ", mappings.Select(m => $"{m.ColumnName} = @{m.Metadata.Name}"));
             string sql = $"UPDATE {_tableName} SET {setClause} WHERE {keyMapping.ColumnName} = @{keyMapping.Metadata.Name}";
 
-            int rowsAffected = await connection.ExecuteAsync(sql, item);
+            int rowsAffected = await connection.ExecuteAsync(sql, item, cancellationToken);
             return rowsAffected > 0;
         }
 
-        public async Task<bool> RemoveAsync(T item)
+        public async Task<bool> RemoveAsync(T item, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(item);
-            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
+            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
             
             TableCacheItem keyMapping = _cache.GetKeyItem<T>();
             string sql = $"DELETE FROM {_tableName} WHERE {keyMapping.ColumnName} = @{keyMapping.Metadata.Name}";
@@ -74,14 +74,14 @@ namespace pORM.Mapping
             Dictionary<string, object?> parameters = new Dictionary<string, object?>();
             parameters.Add("@" + keyMapping.Metadata.Name, keyMapping.Metadata.GetValue(item));
 
-            int rowsAffected = await connection.ExecuteAsync(sql, parameters);
+            int rowsAffected = await connection.ExecuteAsync(sql, parameters, cancellationToken);
             return rowsAffected > 0;
         }
 
-        public async Task<bool> ExistsAsync(T item)
+        public async Task<bool> ExistsAsync(T item, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(item);
-            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
+            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
 
             TableCacheItem keyMapping = _cache.GetKeyItem<T>();
             string sql = $"SELECT COUNT(1) FROM {_tableName} WHERE {keyMapping.ColumnName} = @{keyMapping.Metadata.Name}";
@@ -89,14 +89,14 @@ namespace pORM.Mapping
             Dictionary<string, object?> parameters = new Dictionary<string, object?>();
             parameters.Add("@" + keyMapping.Metadata.Name, keyMapping.Metadata.GetValue(item));
 
-            int count = await connection.ExecuteScalarAsync<int>(sql, parameters);
+            int count = await connection.ExecuteScalarAsync<int>(sql, parameters, cancellationToken);
             return count > 0;
         }
         
-        public async Task<IEnumerable<T>> WhereAsync(Expression<Func<T, bool>> predicate)
+        public async Task<IEnumerable<T>> WhereAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(predicate);
-            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
+            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
 
             // Use our custom translator that now uses our SimpleDynamicParameters container.
             ExpressionToSqlTranslator translator = new(_cache);
@@ -104,34 +104,34 @@ namespace pORM.Mapping
             string sql = $"SELECT * FROM {_tableName} WHERE {whereClause}";
 
             // Pass our parameters as a dictionary using GetParameters().
-            return await connection.QueryAsync<T>(sql, translator.Parameters.GetParameters());
+            return await connection.QueryAsync<T>(sql, translator.Parameters.GetParameters(), cancellationToken);
         }
         
-        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        public async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(predicate);
-            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
+            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
 
             ExpressionToSqlTranslator translator = new(_cache);
             string whereClause = translator.Translate(predicate.Body);
             string sql = $"SELECT * FROM {_tableName} WHERE {whereClause} LIMIT 1";
 
-            IEnumerable<T> result = await connection.QueryAsync<T>(sql, translator.Parameters.GetParameters());
+            IEnumerable<T> result = await connection.QueryAsync<T>(sql, translator.Parameters.GetParameters(), cancellationToken);
             return result.ElementAtOrDefault(0);
         }
 
-        public async Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null)
+        public async Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default)
         {
-            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync();
+            using IDbConnection connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
             DynamicParameters parameters = new();
             string whereClause = BuildWhereClause(predicate, parameters);
             string sql = $"SELECT COUNT(1) FROM {_tableName}{whereClause}";
-            return await connection.ExecuteScalarAsync<int>(sql, parameters.GetParameters());
+            return await connection.ExecuteScalarAsync<int>(sql, parameters.GetParameters(), cancellationToken);
         }
 
-        public async Task<bool> AnyAsync(Expression<Func<T, bool>>? predicate = null)
+        public async Task<bool> AnyAsync(Expression<Func<T, bool>>? predicate = null, CancellationToken cancellationToken = default)
         {
-            return await CountAsync(predicate) > 0;
+            return await CountAsync(predicate, cancellationToken) > 0;
         }
 
         public IQuery<T> Query() => new Query<T>(_connectionFactory, _cache, _tableName);

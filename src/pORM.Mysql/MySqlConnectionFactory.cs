@@ -15,10 +15,10 @@ public class MySqlConnectionFactory : IDatabaseConnectionFactory
             : connectionString;
     }
         
-    public async Task<IDbConnection> CreateConnectionAsync()
+    public async Task<IDbConnection> CreateConnectionAsync(CancellationToken cancellationToken = default)
     {
         MySqlConnection connection = new(_connectionString);
-        await connection.OpenAsync();
+        await connection.OpenAsync(cancellationToken);
         return connection;
     }
 }

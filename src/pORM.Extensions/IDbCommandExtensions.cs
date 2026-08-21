@@ -11,16 +11,16 @@ public static class IDBCommandExtensions
     /// <summary>
     /// Executes a SQL command and returns the number of affected rows.
     /// </summary>
-    public static async Task<int> ExecuteAsync(this IDbConnection connection, string sql, object? param = null)
+    public static async Task<int> ExecuteAsync(this IDbConnection connection, string sql, object? param = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentException.ThrowIfNullOrWhiteSpace(sql);
-        await EnsureOpenAsync(connection);
+        await EnsureOpenAsync(connection, cancellationToken);
         using IDbCommand command = connection.CreateCommand();
         command.CommandText = sql;
         AddParametersToCommand(command, param);
         if (command is DbCommand dbCommand)
-            return await dbCommand.ExecuteNonQueryAsync();
+            return await dbCommand.ExecuteNonQueryAsync(cancellationToken);
         else
             return command.ExecuteNonQuery();
     }
@@ -29,19 +29,19 @@ public static class IDBCommandExtensions
     /// Executes a SQL query and maps the result to an enumerable of T.
     /// </summary>
     public static async Task<IEnumerable<T>> QueryAsync<T>(this IDbConnection connection, string sql,
-        object? param = null) where T : new()
+        object? param = null, CancellationToken cancellationToken = default) where T : new()
     {
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentException.ThrowIfNullOrWhiteSpace(sql);
-        await EnsureOpenAsync(connection);
+        await EnsureOpenAsync(connection, cancellationToken);
         using IDbCommand command = connection.CreateCommand();
         command.CommandText = sql;
         AddParametersToCommand(command, param);
         List<T> list = new List<T>();
         if (command is DbCommand dbCommand)
         {
-            await using DbDataReader reader = await dbCommand.ExecuteReaderAsync();
-            while (await ((DbDataReader)reader).ReadAsync())
+            await using DbDataReader reader = await dbCommand.ExecuteReaderAsync(cancellationToken);
+            while (await ((DbDataReader)reader).ReadAsync(cancellationToken))
             {
                 list.Add(MapReaderToEntity<T>(reader));
             }
@@ -61,17 +61,17 @@ public static class IDBCommandExtensions
     /// <summary>
     /// Executes a SQL scalar query asynchronously and returns a value of type T.
     /// </summary>
-    public static async Task<T> ExecuteScalarAsync<T>(this IDbConnection connection, string sql, object? param = null)
+    public static async Task<T> ExecuteScalarAsync<T>(this IDbConnection connection, string sql, object? param = null, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(connection);
         ArgumentException.ThrowIfNullOrWhiteSpace(sql);
-        await EnsureOpenAsync(connection);
+        await EnsureOpenAsync(connection, cancellationToken);
         using IDbCommand command = connection.CreateCommand();
         command.CommandText = sql;
         AddParametersToCommand(command, param);
         object? result = null;
         if (command is DbCommand dbCommand)
-            result = await dbCommand.ExecuteScalarAsync();
+            result = await dbCommand.ExecuteScalarAsync(cancellationToken);
         else
             result = command.ExecuteScalar();
 
@@ -83,13 +83,13 @@ public static class IDBCommandExtensions
 
     #region Helper Methods
 
-    private static async Task EnsureOpenAsync(IDbConnection connection)
+    private static async Task EnsureOpenAsync(IDbConnection connection, CancellationToken cancellationToken)
     {
         if (connection.State == ConnectionState.Open)
             return;
 
         if (connection is DbConnection dbConn)
-            await dbConn.OpenAsync();
+            await dbConn.OpenAsync(cancellationToken);
         else
             connection.Open();
     }
