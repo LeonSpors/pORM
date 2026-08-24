@@ -35,4 +35,20 @@ public class TransactionTests
         Assert.That(transactionTable, Is.Not.Null);
         Assert.That(transactionTable, Is.TypeOf<Table<TestEntity>>());
     }
+
+    [Test]
+    public void Query_WithClosedTransactionConnection_ThrowsInvalidOperationException()
+    {
+        IDatabaseConnectionFactory factory = Substitute.For<IDatabaseConnectionFactory>();
+        ITableCache cache = Substitute.For<ITableCache>();
+        IDatabaseTransaction transaction = Substitute.For<IDatabaseTransaction>();
+        IDbConnection connection = Substitute.For<IDbConnection>();
+        connection.State.Returns(ConnectionState.Closed);
+        transaction.Connection.Returns(connection);
+        transaction.Transaction.Returns(Substitute.For<IDbTransaction>());
+
+        Query<TestEntity> query = new(factory, cache, "test_entities", transaction);
+
+        Assert.ThrowsAsync<InvalidOperationException>(() => query.CountAsync());
+    }
 }
