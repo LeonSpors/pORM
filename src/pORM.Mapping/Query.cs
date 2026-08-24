@@ -16,8 +16,7 @@ public sealed class Query<T> : IQuery<T>
     private readonly string _tableName;
     private readonly IDatabaseTransaction? _transaction;
     private Expression<Func<T, bool>>? _predicate;
-    private string? _orderBy;
-    private bool _descending;
+    private readonly List<OrderClause> _orderBy = new();
     private int? _skip;
     private int? _take;
 
@@ -39,16 +38,16 @@ public sealed class Query<T> : IQuery<T>
     }
 
     public IQuery<T> OrderBy<TKey>(Expression<Func<T, TKey>> keySelector)
-        => SetOrder(keySelector, false);
+        => SetOrder(keySelector, false, reset: true);
 
     public IQuery<T> OrderByDescending<TKey>(Expression<Func<T, TKey>> keySelector)
-        => SetOrder(keySelector, true);
+        => SetOrder(keySelector, true, reset: true);
 
     public IQuery<T> ThenBy<TKey>(Expression<Func<T, TKey>> keySelector)
-        => SetOrder(keySelector, false);
+        => SetOrder(keySelector, false, reset: false);
 
     public IQuery<T> ThenByDescending<TKey>(Expression<Func<T, TKey>> keySelector)
-        => SetOrder(keySelector, true);
+        => SetOrder(keySelector, true, reset: false);
 
     public IQuery<T> Skip(int count)
     {
@@ -90,7 +89,7 @@ public sealed class Query<T> : IQuery<T>
 
     public async Task<bool> AnyAsync(CancellationToken cancellationToken = default) => await CountAsync(cancellationToken) > 0;
 
-    private IQuery<T> SetOrder<TKey>(Expression<Func<T, TKey>> keySelector, bool descending)
+    private IQuery<T> SetOrder<TKey>(Expression<Func<T, TKey>> keySelector, bool descending, bool reset)
     {
         ArgumentNullException.ThrowIfNull(keySelector);
         MemberExpression member = GetMemberExpression(keySelector.Body);
@@ -98,8 +97,10 @@ public sealed class Query<T> : IQuery<T>
             throw new NotSupportedException("Ordering is only supported for entity properties.");
 
         TableCacheItem mapping = _cache.GetItem(property);
-        _orderBy = mapping.ColumnName;
-        _descending = descending;
+        if (reset)
+            _orderBy.Clear();
+
+        _orderBy.Add(new OrderClause(mapping.ColumnName, descending));
         return this;
     }
 
@@ -120,12 +121,14 @@ public sealed class Query<T> : IQuery<T>
             ? $"SELECT COUNT(1) FROM {_tableName}{whereClause}"
             : $"SELECT * FROM {_tableName}{whereClause}";
 
-        if (!countOnly && _orderBy is not null)
-            sql += $" ORDER BY {_orderBy}{(_descending ? " DESC" : " ASC")}";
-        if (!countOnly && _take.HasValue)
-            sql += $" LIMIT {_take.Value}";
-        if (!countOnly && _skip.HasValue)
-            sql += $" OFFSET {_skip.Value}";
+        if (!countOnly && _orderBy.Count > 0)
+            sql += $" ORDER BY {string.Join(", ", _orderBy.Select(order => $"{order.ColumnName}{(order.Descending ? " DESC" : " ASC")}"))}";
+        if (!countOnly && (_take.HasValue || _skip.HasValue))
+        {
+            sql += $" LIMIT {_take?.ToString() ?? "18446744073709551615"}";
+            if (_skip.HasValue)
+                sql += $" OFFSET {_skip.Value}";
+        }
 
         return new QueryParts(sql, parameters.GetParameters());
     }
@@ -162,6 +165,8 @@ public sealed class Query<T> : IQuery<T>
     }
 
     private sealed record QueryParts(string Sql, IReadOnlyDictionary<string, object?> Parameters);
+
+    private sealed record OrderClause(string ColumnName, bool Descending);
 
     private Task<ConnectionLease> OpenConnectionAsync(CancellationToken cancellationToken)
     {
