@@ -17,6 +17,14 @@ public interface IQuery<T>
         Expression<Func<T, TResult>> projection,
         CancellationToken cancellationToken = default)
         where TResult : class, new();
+    Task<IEnumerable<TResult>> JoinAsync<TJoin, TResult>(
+        string joinTableName,
+        Expression<Func<T, object>> outerKeySelector,
+        Expression<Func<TJoin, object>> innerKeySelector,
+        Expression<Func<T, TJoin, TResult>> resultSelector,
+        CancellationToken cancellationToken = default)
+        where TJoin : class, new()
+        where TResult : class, new();
     Task<T?> FirstOrDefaultAsync(CancellationToken cancellationToken = default);
     Task<int> CountAsync(CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(CancellationToken cancellationToken = default);

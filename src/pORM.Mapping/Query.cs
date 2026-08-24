@@ -85,6 +85,25 @@ public sealed class Query<T> : IQuery<T>
         return await connection.QueryAsync<TResult>(parts.Sql, parts.Parameters, cancellationToken, _transaction?.Transaction);
     }
 
+    public async Task<IEnumerable<TResult>> JoinAsync<TJoin, TResult>(
+        string joinTableName,
+        Expression<Func<T, object>> outerKeySelector,
+        Expression<Func<TJoin, object>> innerKeySelector,
+        Expression<Func<T, TJoin, TResult>> resultSelector,
+        CancellationToken cancellationToken = default)
+        where TJoin : class, new()
+        where TResult : class, new()
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(joinTableName);
+        ArgumentNullException.ThrowIfNull(outerKeySelector);
+        ArgumentNullException.ThrowIfNull(innerKeySelector);
+        ArgumentNullException.ThrowIfNull(resultSelector);
+
+        await using ConnectionLease lease = await OpenConnectionAsync(cancellationToken);
+        QueryParts parts = BuildJoinQuery(joinTableName, outerKeySelector, innerKeySelector, resultSelector);
+        return await lease.Connection.QueryAsync<TResult>(parts.Sql, parts.Parameters, cancellationToken, _transaction?.Transaction);
+    }
+
     public async Task<T?> FirstOrDefaultAsync(CancellationToken cancellationToken = default)
     {
         Take(1);
@@ -167,6 +186,43 @@ public sealed class Query<T> : IQuery<T>
             throw new InvalidOperationException("The projection must select at least one property.");
 
         string sql = $"SELECT {string.Join(", ", columns)} FROM {_tableName}";
+        return new QueryParts(sql, new Dictionary<string, object?>());
+    }
+
+    private QueryParts BuildJoinQuery<TJoin, TResult>(
+        string joinTableName,
+        Expression<Func<T, object>> outerKeySelector,
+        Expression<Func<TJoin, object>> innerKeySelector,
+        Expression<Func<T, TJoin, TResult>> resultSelector)
+        where TJoin : class, new()
+        where TResult : class, new()
+    {
+        if (resultSelector.Body is not MemberInitExpression memberInit)
+            throw new NotSupportedException("Join projections must initialize a result object.");
+
+        PropertyInfo outerKey = GetMemberExpression(outerKeySelector.Body).Member as PropertyInfo
+            ?? throw new NotSupportedException("Join keys must be entity properties.");
+        PropertyInfo innerKey = GetMemberExpression(innerKeySelector.Body).Member as PropertyInfo
+            ?? throw new NotSupportedException("Join keys must be entity properties.");
+
+        string outerColumn = _cache.GetItem(outerKey).ColumnName;
+        string innerColumn = _cache.GetItem(innerKey).ColumnName;
+        List<string> columns = new();
+
+        foreach (MemberBinding binding in memberInit.Bindings)
+        {
+            if (binding is not MemberAssignment assignment || assignment.Expression is not MemberExpression sourceMember || sourceMember.Member is not PropertyInfo sourceProperty)
+                throw new NotSupportedException("Join projections must map entity properties directly.");
+
+            string alias = sourceMember.Expression == resultSelector.Parameters[0] ? "t" : "j";
+            string column = _cache.GetItem(sourceProperty).ColumnName;
+            columns.Add($"{alias}.{column} AS {binding.Member.Name}");
+        }
+
+        if (columns.Count == 0)
+            throw new InvalidOperationException("The join projection must select at least one property.");
+
+        string sql = $"SELECT {string.Join(", ", columns)} FROM {_tableName} t INNER JOIN {joinTableName} j ON t.{outerColumn} = j.{innerColumn}";
         return new QueryParts(sql, new Dictionary<string, object?>());
     }
 
