@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using pORM.Core.Caching;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using pORM.Core.Interfaces;
 using pORM.Data;
 
@@ -18,5 +19,15 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ITableCache, TableCache>();
 
         return services;
+    }
+
+    public static IServiceCollection AddDatabaseCore(
+        this IServiceCollection services,
+        IDatabaseConnectionFactory connectionFactory)
+    {
+        ArgumentNullException.ThrowIfNull(connectionFactory);
+
+        services.TryAddSingleton(connectionFactory);
+        return services.AddDatabaseCore();
     }
 }
