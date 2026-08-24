@@ -182,11 +182,20 @@ namespace pORM.Mapping
         private async Task<ConnectionLease> OpenConnectionAsync(CancellationToken cancellationToken)
         {
             if (_transaction is not null)
+            {
+                EnsureTransactionConnectionIsOpen(_transaction);
                 return new ConnectionLease(_transaction.Connection, ownsConnection: false);
+            }
 
             return new ConnectionLease(
                 await _connectionFactory.CreateConnectionAsync(cancellationToken),
                 ownsConnection: true);
+        }
+
+        private static void EnsureTransactionConnectionIsOpen(IDatabaseTransaction transaction)
+        {
+            if (transaction.Connection.State != ConnectionState.Open)
+                throw new InvalidOperationException("The transaction connection must remain open while the transaction is active.");
         }
 
         private sealed class ConnectionLease : IAsyncDisposable
