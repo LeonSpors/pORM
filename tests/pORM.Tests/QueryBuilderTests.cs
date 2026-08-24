@@ -92,6 +92,33 @@ public class QueryBuilderTests
         Assert.That(sql, Is.EqualTo("SELECT Name AS DisplayName FROM sample_table"));
     }
 
+    [Test]
+    public void Query_WithJoin_BuildsAliasedInnerJoin()
+    {
+        ITableCache cache = Substitute.For<ITableCache>();
+        cache.GetItem(Arg.Any<PropertyInfo>())
+            .Returns(callInfo => new TableCacheItem(callInfo.Arg<PropertyInfo>()));
+        Query<TestEntity> query = CreateQuery(cache);
+
+        MethodInfo buildJoin = typeof(Query<TestEntity>).GetMethod(
+            "BuildJoinQuery",
+            BindingFlags.Instance | BindingFlags.NonPublic)!.MakeGenericMethod(typeof(RelatedEntity), typeof(JoinProjection));
+        object queryParts = buildJoin.Invoke(query, new object[]
+        {
+            "related_entities",
+            (Expression<Func<TestEntity, object>>)(entity => entity.Id),
+            (Expression<Func<RelatedEntity, object>>)(entity => entity.Id),
+            (Expression<Func<TestEntity, RelatedEntity, JoinProjection>>)((entity, related) => new JoinProjection
+            {
+                Name = entity.Name,
+                Description = related.Description
+            })
+        })!;
+        string sql = (string)queryParts.GetType().GetProperty("Sql")!.GetValue(queryParts)!;
+
+        Assert.That(sql, Is.EqualTo("SELECT t.Name AS Name, j.Description AS Description FROM sample_table t INNER JOIN related_entities j ON t.Id = j.Id"));
+    }
+
     private static Query<TestEntity> CreateQuery()
     {
         IDatabaseConnectionFactory factory = Substitute.For<IDatabaseConnectionFactory>();
