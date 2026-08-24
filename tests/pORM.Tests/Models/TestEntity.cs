@@ -14,3 +14,8 @@ public class TestEntity
     [NotMapped]
     public string Ignored { get; set; } = string.Empty;
 }
+
+public class TestEntityProjection
+{
+    public string? DisplayName { get; set; }
+}

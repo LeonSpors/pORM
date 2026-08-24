@@ -72,6 +72,26 @@ public class QueryBuilderTests
         Assert.That(sql, Does.Contain("LIMIT 18446744073709551615 OFFSET 10"));
     }
 
+    [Test]
+    public void Query_WithProjection_SelectsMappedColumns()
+    {
+        ITableCache cache = Substitute.For<ITableCache>();
+        cache.GetItem(Arg.Any<PropertyInfo>())
+            .Returns(callInfo => new TableCacheItem(callInfo.Arg<PropertyInfo>()));
+        Query<TestEntity> query = CreateQuery(cache);
+
+        MethodInfo buildProjection = typeof(Query<TestEntity>).GetMethod(
+            "BuildProjectionQuery",
+            BindingFlags.Instance | BindingFlags.NonPublic)!.MakeGenericMethod(typeof(TestEntityProjection));
+        object queryParts = buildProjection.Invoke(query, new object[]
+        {
+            (Expression<Func<TestEntity, TestEntityProjection>>)(entity => new TestEntityProjection { DisplayName = entity.Name })
+        })!;
+        string sql = (string)queryParts.GetType().GetProperty("Sql")!.GetValue(queryParts)!;
+
+        Assert.That(sql, Is.EqualTo("SELECT Name AS DisplayName FROM sample_table"));
+    }
+
     private static Query<TestEntity> CreateQuery()
     {
         IDatabaseConnectionFactory factory = Substitute.For<IDatabaseConnectionFactory>();

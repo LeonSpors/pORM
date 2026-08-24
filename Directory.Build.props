@@ -3,7 +3,7 @@
   <!-- Shared project metadata -->
   <PropertyGroup>
     <!-- Version -->
-    <Version>0.3.4</Version>
+    <Version>0.4.0</Version>
 
     <!-- Package Identity -->
     <PackageId Condition="'$(PackageId)' == ''">$(MSBuildProjectName)</PackageId>
