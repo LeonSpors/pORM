@@ -8,6 +8,9 @@ on:
 jobs:
   delete-old-nightlies:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Delete nightly packages older than the latest 7 versions
         uses: actions/delete-package-versions@v5
@@ -17,8 +20,8 @@ jobs:
             pORM.Data
             pORM.Mapping
             pORM.Extensions
-            pORM.MySql
+            pORM.Mysql
           package-type: nuget
           min-versions-to-keep: 7
-          version-regex: '-nightly\.\d{8}-[a-f0-9]+$'
-          token: ${{ secrets.GH_API_KEY }}
+          delete-only-pre-release-versions: true
+          token: ${{ secrets.GITHUB_TOKEN }}
