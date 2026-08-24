@@ -19,7 +19,7 @@
         <ProjectReference Include="..\..\src\pORM.Core\pORM.Core.csproj"/>
         <ProjectReference Include="..\..\src\pORM.Mapping\pORM.Mapping.csproj"/>
         <ProjectReference Include="..\..\src\pORM.ProviderCore\pORM.ProviderCore.csproj"/>
-        <ProjectReference Include="..\..\src\pORM.Mysql\pORM.Mysql.csproj"/>
+        <ProjectReference Include="..\..\src\Providers\MySql\pORM.Mysql.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

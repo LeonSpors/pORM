@@ -1,13 +1,15 @@
 name: Publish nightly build
 
 on:
-  schedule:
-    - cron: '0 2 * * *'
   workflow_dispatch:
 
 defaults:
   run:
     shell: bash
+
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   publish-nightly:
@@ -46,7 +48,7 @@ jobs:
           dotnet pack src/pORM.Core/pORM.Core.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:Nightly=true
           dotnet nuget push ./nupkg/pORM.Core.*.nupkg \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key ${{ secrets.GH_API_KEY }} \
+            --api-key ${{ secrets.GITHUB_TOKEN }} \
             
 
       - name: Publish pORM.Data
@@ -54,25 +56,25 @@ jobs:
           dotnet pack src/pORM.Data/pORM.Data.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:Nightly=true
           dotnet nuget push ./nupkg/pORM.Data.*.nupkg \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key ${{ secrets.GH_API_KEY }}
+            --api-key ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish pORM.Mapping
         run: |
           dotnet pack src/pORM.Mapping/pORM.Mapping.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:Nightly=true
           dotnet nuget push ./nupkg/pORM.Mapping.*.nupkg \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key ${{ secrets.GH_API_KEY }}
+            --api-key ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish pORM.Extensions
         run: |
           dotnet pack src/pORM.Extensions/pORM.Extensions.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:Nightly=true
           dotnet nuget push ./nupkg/pORM.Extensions.*.nupkg \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key ${{ secrets.GH_API_KEY }}
+            --api-key ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish pORM.MySql
+      - name: Publish pORM.Mysql
         run: |
-          dotnet pack src/pORM.Mysql/pORM.Mysql.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:Nightly=true
+          dotnet pack src/Providers/MySql/pORM.Mysql.csproj --configuration Release --no-build --output ./nupkg /p:Version=${{ env.NIGHTLY_VERSION }} /p:Nightly=true
           dotnet nuget push ./nupkg/pORM.Mysql.*.nupkg \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key ${{ secrets.GH_API_KEY }}
+            --api-key ${{ secrets.GITHUB_TOKEN }}

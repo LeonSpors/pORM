@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\pORM.Mysql\pORM.Mysql.csproj" />
+      <ProjectReference Include="..\..\src\Providers\MySql\pORM.Mysql.csproj" />
     </ItemGroup>
 
 </Project>

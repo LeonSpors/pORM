@@ -166,7 +166,12 @@ public sealed class Query<T> : IQuery<T>
     private Task<ConnectionLease> OpenConnectionAsync(CancellationToken cancellationToken)
     {
         if (_transaction is not null)
+        {
+            if (_transaction.Connection.State != System.Data.ConnectionState.Open)
+                throw new InvalidOperationException("The transaction connection must remain open while the transaction is active.");
+
             return Task.FromResult(new ConnectionLease(_transaction.Connection, ownsConnection: false));
+        }
 
         return OpenOwnedConnectionAsync(cancellationToken);
     }
