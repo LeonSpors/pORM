@@ -73,6 +73,18 @@ public sealed class Query<T> : IQuery<T>
         return await connection.QueryAsync<T>(parts.Sql, parts.Parameters, cancellationToken, _transaction?.Transaction);
     }
 
+    public async Task<IEnumerable<TResult>> SelectAsync<TResult>(
+        Expression<Func<T, TResult>> projection,
+        CancellationToken cancellationToken = default)
+        where TResult : class, new()
+    {
+        ArgumentNullException.ThrowIfNull(projection);
+        await using ConnectionLease lease = await OpenConnectionAsync(cancellationToken);
+        System.Data.IDbConnection connection = lease.Connection;
+        QueryParts parts = BuildProjectionQuery(projection);
+        return await connection.QueryAsync<TResult>(parts.Sql, parts.Parameters, cancellationToken, _transaction?.Transaction);
+    }
+
     public async Task<T?> FirstOrDefaultAsync(CancellationToken cancellationToken = default)
     {
         Take(1);
@@ -131,6 +143,31 @@ public sealed class Query<T> : IQuery<T>
         }
 
         return new QueryParts(sql, parameters.GetParameters());
+    }
+
+    private QueryParts BuildProjectionQuery<TResult>(Expression<Func<T, TResult>> projection)
+    {
+        if (projection.Body is not MemberInitExpression memberInit)
+            throw new NotSupportedException("Projections must initialize a result object.");
+
+        List<string> columns = new();
+        foreach (MemberBinding binding in memberInit.Bindings)
+        {
+            if (binding is not MemberAssignment assignment || assignment.Expression is not MemberExpression sourceMember)
+                throw new NotSupportedException("Projections must map entity properties directly.");
+
+            if (sourceMember.Member is not PropertyInfo sourceProperty)
+                throw new NotSupportedException("Projections must map entity properties directly.");
+
+            TableCacheItem mapping = _cache.GetItem(sourceProperty);
+            columns.Add($"{mapping.ColumnName} AS {binding.Member.Name}");
+        }
+
+        if (columns.Count == 0)
+            throw new InvalidOperationException("The projection must select at least one property.");
+
+        string sql = $"SELECT {string.Join(", ", columns)} FROM {_tableName}";
+        return new QueryParts(sql, new Dictionary<string, object?>());
     }
 
     private static Expression<Func<T, bool>> Combine(Expression<Func<T, bool>> left, Expression<Func<T, bool>> right)

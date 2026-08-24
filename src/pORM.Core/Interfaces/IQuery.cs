@@ -13,6 +13,10 @@ public interface IQuery<T>
     IQuery<T> Skip(int count);
     IQuery<T> Take(int count);
     Task<IEnumerable<T>> ToListAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<TResult>> SelectAsync<TResult>(
+        Expression<Func<T, TResult>> projection,
+        CancellationToken cancellationToken = default)
+        where TResult : class, new();
     Task<T?> FirstOrDefaultAsync(CancellationToken cancellationToken = default);
     Task<int> CountAsync(CancellationToken cancellationToken = default);
     Task<bool> AnyAsync(CancellationToken cancellationToken = default);
