@@ -1,8 +1,6 @@
 name: Cleanup old nightly packages
 
 on:
-  schedule:
-    - cron: '0 4 * * *'
   workflow_dispatch:
 
 jobs:
