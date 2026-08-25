@@ -8,6 +8,7 @@ public interface ITable<T>
     IQuery<T> Query();
     ITable<T> WithTransaction(IDatabaseTransaction transaction);
     public Task<bool> AddAsync(T item, CancellationToken cancellationToken = default);
+    public Task<int> AddBatchAsync(IEnumerable<T> items, CancellationToken cancellationToken = default);
     public Task<bool> UpdateAsync(T item, CancellationToken cancellationToken = default);
     public Task<bool> RemoveAsync(T item, CancellationToken cancellationToken = default);
     public Task<bool> ExistsAsync(T item, CancellationToken cancellationToken = default);
