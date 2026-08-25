@@ -48,6 +48,28 @@ namespace pORM.Mapping
             return rowsAffected > 0;
         }
 
+        public async Task<int> AddBatchAsync(IEnumerable<T> items, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(items);
+            List<T> batch = items.ToList();
+            if (batch.Count == 0)
+                return 0;
+
+            await using ConnectionLease lease = await OpenConnectionAsync(cancellationToken);
+            IDbConnection connection = lease.Connection;
+            IReadOnlyList<TableCacheItem> mappings = _cache.GetItems<T>();
+            string sql = $"INSERT INTO {_tableName} ({string.Join(", ", mappings.Select(m => m.ColumnName))}) VALUES ({string.Join(", ", mappings.Select(m => "@" + m.Metadata.Name))})";
+            int inserted = 0;
+
+            foreach (T item in batch)
+            {
+                ArgumentNullException.ThrowIfNull(item);
+                inserted += await connection.ExecuteAsync(sql, item, cancellationToken, _transaction?.Transaction);
+            }
+
+            return inserted;
+        }
+
         public async Task<bool> UpdateAsync(T item, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(item);
