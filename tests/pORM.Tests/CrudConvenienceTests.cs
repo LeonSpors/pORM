@@ -38,4 +38,16 @@ public class CrudConvenienceTests
 
         Assert.ThrowsAsync<ArgumentNullException>(() => table.RemoveByIdAsync<string>(null!));
     }
+
+    [Test]
+    public async Task AddBatchAsync_WithEmptyBatch_ReturnsZero()
+    {
+        IDatabaseConnectionFactory factory = Substitute.For<IDatabaseConnectionFactory>();
+        ITableCache cache = Substitute.For<ITableCache>();
+        Table<TestEntity> table = new(factory, cache);
+
+        int result = await table.AddBatchAsync(Array.Empty<TestEntity>());
+
+        Assert.That(result, Is.Zero);
+    }
 }
